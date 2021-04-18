@@ -1,0 +1,70 @@
+﻿@page
+@model LargeFileAPI.Pages.UploadModel
+@{
+}
+
+<header>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tus-js-client@latest/dist/tus.min.js"></script>
+    <script>
+        var UploadPage = function () {
+            var upload;
+
+            function onUploadButtonClick(e) {
+                var file = $('#file')[0].files[0];
+
+                //Create tus upload object
+                upload = new tus.Upload(file, {
+                    //File server upload endpoint address settings
+                    endpoint: "@String.Format("{0}://{1}/tus/files/", Request.Scheme, Request.Host)",
+                    //Retrying delay settings
+                    retryDelays: [0, 3000, 5000, 10000, 20000],
+                    //Metadata required by attachment server
+                    metadata: {
+                        name: file.name,
+                        contentType: file.type || 'application/octet-stream',
+                        emptyMetaKey: ''
+                    },
+                    //Callback errors that cannot be resolved by retrying
+                    onError: function (error) {
+                        console.log("Failed because: " + error)
+                    },
+                    //Upload progress callback
+                    onProgress: function (bytesUploaded, bytesTotal) {
+                        console.log(bytesUploaded + " / " + bytesTotal);
+                    },
+                    //Callback after upload
+                    onSuccess: function () {
+                        console.log("Download %s from %s", upload.file.name, upload.url)
+                    }
+                });
+
+                upload.start();
+            }
+
+            function onPauseButtonClick(e) {
+                upload.abort();
+            }
+
+            function onContinueButtonClick(e) {
+                upload.start();
+            }
+
+            return {
+                onUploadButtonClick: onUploadButtonClick,
+                onPauseButtonClick: onPauseButtonClick,
+                onContinueButtonClick: onContinueButtonClick
+            }
+        }();
+    </script>
+</header>
+
+<body>
+    <div style="display:flex;flex-direction:column;">
+        <input id="file" type="file" />
+        <button id="start" onclick="UploadPage.onUploadButtonClick(event)">Upload</button>
+        <button id="pause" onclick="UploadPage.onPauseButtonClick(event)">Pause</button>
+        <button id="continue" onclick="UploadPage.onContinueButtonClick(event)">Continue</button>
+        <div id="progress"></div>
+    </div>
+</body>
