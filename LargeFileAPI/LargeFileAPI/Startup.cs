@@ -43,9 +43,10 @@ namespace LargeFileAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LargeFileAPI v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LargeFileAPI v1"));
 
             app.UseHttpsRedirection();
 
@@ -59,6 +60,8 @@ namespace LargeFileAPI
                 Store = new TusDiskStore(@$"{Configuration.GetSection("AppConfig").GetValue<string>("FileSavePath")}\tusfiles\"),
                 // On what url should we listen for uploads?
                 UrlPath = "/tus/files",
+                MaxAllowedUploadSizeInBytes = null,
+                MaxAllowedUploadSizeInBytesLong = null,
                 Events = new Events
                 {
                     OnFileCompleteAsync = async eventContext =>

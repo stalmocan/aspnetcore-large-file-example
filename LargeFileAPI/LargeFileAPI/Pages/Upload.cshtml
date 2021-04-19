@@ -19,6 +19,7 @@
                     endpoint: "@String.Format("{0}://{1}/tus/files/", Request.Scheme, Request.Host)",
                     //Retrying delay settings
                     retryDelays: [0, 3000, 5000, 10000, 20000],
+                    chunkSize: 1073741823,
                     //Metadata required by attachment server
                     metadata: {
                         name: file.name,
